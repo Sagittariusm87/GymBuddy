@@ -1,41 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>GymBuddy</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            text-align: center;
-            padding-top: 50px;
-        }
-        h1 {
-            color: #2c3e50;
-            font-size: 3em;
-            margin-bottom: 20px;
-        }
-        video, canvas {
-            border: 2px solid #2c3e50;
-            border-radius: 10px;
-            margin: 10px;
-        }
-        button {
-            background: #2c3e50;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            font-size: 1em;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #34495e;
-        }
-    </style>
+  <title>Real-time Push-Up Checker</title>
+  <style>
+    #feedback {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      padding: 10px;
+      font-size: 18px;
+      border-radius: 8px;
+    }
+    video {
+      border: 1px solid black;
+    }
+  </style>
 </head>
 <body>
-    <h1>GymBuddy</h1>
-    <!-- Add your content like webcam/video feed here -->
+  <video id="video" autoplay playsinline></video>
+  <canvas id="canvas" style="display:none;"></canvas>
+  <div id="feedback">Loading...</div>
+
+  <script>
+    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+      const video = document.getElementById('video');
+      video.srcObject = stream;
+
+      setInterval(() => {
+        const canvas = document.getElementById('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+
+        canvas.toBlob(blob => {
+          const formData = new FormData();
+          formData.append('frame', blob);
+
+          fetch('/analyze', {
+            method: 'POST',
+            body: formData
+          })
+          .then(response => response.json())
+          .then(data => {
+            document.getElementById('feedback').innerText =
+              "Message: " + data.message + "\\n" +
+              "Push-Up Count: " + data.count + "\\n" +
+              "Elbow Angle: " + Math.round(data.elbow_angle || 0) + "\\n" +
+              "Alignment: " + Math.round(data.alignment || 0);
+          })
+          .catch(err => {
+            document.getElementById('feedback').innerText = "Error analyzing frame.";
+            console.error(err);
+          });
+        }, 'image/jpeg');
+      }, 1000); // 1 frame per second
+    });
+  </script>
 </body>
 </html>

@@ -1,14 +1,11 @@
+
 from flask import Flask, render_template, request, jsonify
 import cv2
 import numpy as np
 from waitress import serve  # Import waitress for serving the app
+from pushup_web_module import analyze_frame  # Use the real-time pushup analysis
 
 app = Flask(__name__)
-
-def analyze_image(img):
-    # Example: return image size as dummy result
-    h, w, _ = img.shape
-    return {"status": "success", "height": h, "width": w}
 
 @app.route('/')
 def index():
@@ -18,7 +15,7 @@ def index():
 def analyze():
     file = request.files['frame']
     img = cv2.imdecode(np.frombuffer(file.read(), np.uint8), cv2.IMREAD_COLOR)
-    result = analyze_image(img)
+    result = analyze_frame(img)
     return jsonify(result)
 
 if __name__ == '__main__':
