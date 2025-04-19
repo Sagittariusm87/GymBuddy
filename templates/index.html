@@ -1,31 +1,41 @@
 <!DOCTYPE html>
-<html>
-<head><title>Posture Analyzer</title></head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GymBuddy</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            text-align: center;
+            padding-top: 50px;
+        }
+        h1 {
+            color: #2c3e50;
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        video, canvas {
+            border: 2px solid #2c3e50;
+            border-radius: 10px;
+            margin: 10px;
+        }
+        button {
+            background: #2c3e50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1em;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #34495e;
+        }
+    </style>
+</head>
 <body>
-  <video id="video" autoplay></video>
-  <canvas id="canvas" style="display:none;"></canvas>
-
-  <script>
-    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
-      document.getElementById('video').srcObject = stream;
-      setInterval(() => {
-        const video = document.getElementById('video');
-        const canvas = document.getElementById('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext('2d').drawImage(video, 0, 0);
-        canvas.toBlob(blob => {
-          const formData = new FormData();
-          formData.append('frame', blob);
-          fetch('/analyze', {
-            method: 'POST',
-            body: formData
-          })
-          .then(res => res.json())
-          .then(data => console.log(data));
-        }, 'image/jpeg');
-      }, 1000);
-    });
-  </script>
+    <h1>GymBuddy</h1>
+    <!-- Add your content like webcam/video feed here -->
 </body>
 </html>
