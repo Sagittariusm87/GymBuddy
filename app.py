@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import cv2
 import numpy as np
+from waitress import serve  # Import waitress for serving the app
 
 app = Flask(__name__)
 
@@ -21,4 +22,5 @@ def analyze():
     return jsonify(result)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Replace app.run() with waitress.serve()
+    serve(app, host='0.0.0.0', port=8080)
