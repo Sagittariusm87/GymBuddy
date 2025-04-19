@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head><title>Posture Analyzer</title></head>
+<body>
+  <video id="video" autoplay></video>
+  <canvas id="canvas" style="display:none;"></canvas>
+
+  <script>
+    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+      document.getElementById('video').srcObject = stream;
+      setInterval(() => {
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video, 0, 0);
+        canvas.toBlob(blob => {
+          const formData = new FormData();
+          formData.append('frame', blob);
+          fetch('/analyze', {
+            method: 'POST',
+            body: formData
+          })
+          .then(res => res.json())
+          .then(data => console.log(data));
+        }, 'image/jpeg');
+      }, 1000);
+    });
+  </script>
+</body>
+</html>
